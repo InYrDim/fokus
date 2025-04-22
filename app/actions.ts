@@ -6,8 +6,28 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const signUpAction = async (formData: FormData) => {
-    const email = formData.get("email")?.toString();
     const password = formData.get("password")?.toString();
+    const confirm_password = formData.get("confirm_password")?.toString();
+
+    if (!password || !confirm_password) {
+        return encodedRedirect(
+            "error",
+            "/sign-up",
+            "Password and confirm password are required"
+        );
+    }
+
+    if (password !== confirm_password) {
+        return encodedRedirect(
+            "error",
+            "/sign-up",
+            "Password and confirm password do not match"
+        );
+    }
+
+    const email = formData.get("email")?.toString();
+    const fullname = formData.get("fullname")?.toString();
+
     const supabase = await createClient();
     const origin = (await headers()).get("origin");
 
