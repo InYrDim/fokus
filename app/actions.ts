@@ -136,7 +136,7 @@ export const resetPasswordAction = async (formData: FormData) => {
         encodedRedirect(
             "error",
             "/beranda/reset-password",
-            "Passwords do not match"
+            "Passwords tidak cocok"
         );
     }
 
