@@ -62,19 +62,37 @@ export const signUpAction = async (formData: FormData) => {
         );
     }
 };
-
 export const signInAction = async (formData: FormData) => {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const supabase = await createClient();
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
     });
 
     if (error) {
         return encodedRedirect("error", "/sign-in", error.message);
+    }
+
+    // 🔁 Redirect sesuai role
+    // Ambil role dari user_metadata
+    const user = data.user;
+    const role = user?.user_metadata?.role; // Ambil role dari user_metadata
+
+    // Pastikan role sudah ada di user_metadata
+    if (!role) {
+        return encodedRedirect(
+            "error",
+            "/sign-in",
+            "Role tidak ditemukan di user metadata."
+        );
+    }
+
+    // Redirect berdasarkan role
+    if (role === "admin") {
+        return redirect("/admin");
     }
 
     return redirect("/beranda");
@@ -157,6 +175,16 @@ export const resetPasswordAction = async (formData: FormData) => {
 
 export const signOutAction = async () => {
     const supabase = await createClient();
+
+    /**
+     * @TODO  : Handle if admin or not logout ✅
+     */
+    const { data } = await supabase.auth.getUser();
     await supabase.auth.signOut();
+
+    if (data.user?.user_metadata.role === "admin") {
+        return redirect("/admin");
+    }
+
     return redirect("/sign-in");
 };
