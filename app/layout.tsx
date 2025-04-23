@@ -7,6 +7,7 @@ import { Poppins } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import Link from "next/link";
 import "./globals.css";
+import { createClient } from "@/utils/supabase/server";
 
 const defaultUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
@@ -18,23 +19,21 @@ export const metadata = {
     description: "Jadwal Tertata, Hidup Lebih Berkualitas.",
 };
 
-const geistSans = Poppins({
-    weight: ["300", "400", "500", "600", "700"],
-    subsets: ["latin"],
-    display: "swap",
-});
+import { poppins } from "@/app/fonts";
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const supabase = await createClient();
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
     return (
-        <html
-            lang="en"
-            className={geistSans.className}
-            suppressHydrationWarning
-        >
+        <html lang="en" className={poppins.className} suppressHydrationWarning>
             <body className="bg-background text-foreground">
                 <ThemeProvider
                     attribute="class"

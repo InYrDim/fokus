@@ -5,9 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
-import { Inter } from "next/font/google";
-
-const inter = Inter({ subsets: ["latin"], display: "swap", weight: "300" });
+import { inter } from "@/app/fonts";
 
 export default async function Login(props: { searchParams: Promise<Message> }) {
     const searchParams = await props.searchParams;
