@@ -18,10 +18,16 @@ export default async function Beranda() {
         return redirect("/sign-in");
     }
 
+    const userId = user.id;
+
     /**
      * @TODO fetch tasks, then map to TaskItem
      * @TODO fetch notifications
      */
+
+    const tasks = await supabase.from("tasks").select().eq("user_id", userId);
+
+    console.log(tasks);
 
     return (
         <>
@@ -38,14 +44,22 @@ export default async function Beranda() {
 
                 {/* tasks */}
                 <div className="flex flex-col gap-2">
-                    <TaskItem id={1} task="Task 1" isDone={true} />
-                    <TaskItem id={2} task="Task 2" isDone={false} />
+                    {tasks.data?.map((task) => (
+                        <TaskItem
+                            key={task.id}
+                            taskName={task.title}
+                            taskDescription={task.description}
+                            taskId={task.id}
+                            taskDueDate={task.due_date}
+                            taskStatus={task.status}
+                        />
+                    ))}
                 </div>
             </div>
 
             <AddingTask />
 
-            <div className="flex-1 w-full flex flex-col gap-12">
+            {/* <div className="flex-1 w-full flex flex-col gap-12">
                 <div className="flex flex-col gap-2 items-start">
                     <h2 className="font-bold text-2xl mb-4">
                         Your user details
@@ -54,7 +68,7 @@ export default async function Beranda() {
                         {JSON.stringify(user, null, 2)}
                     </pre>
                 </div>
-            </div>
+            </div> */}
         </>
     );
 }

@@ -1,23 +1,13 @@
 "use client";
 import { Input } from "./ui/input";
-import { useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-interface TaskItemProps {
-    task: string;
-    isDone: boolean;
-    id: number;
+import { useCallback, useState } from "react";
+import { debounce } from "lodash";
+export interface TaskItemProps {
+    taskId: string;
+    taskName: string;
+    taskDescription: string;
+    taskDueDate: string;
+    taskStatus: "done" | "todo";
 
     // onToggle: (id: number) => void;
     // onEdit: (id: number) => void;
@@ -25,8 +15,26 @@ interface TaskItemProps {
     // onDone: (id: number) => void;
 }
 import { EditIcon, DeleteIcon } from "@/components/icons";
-export default function TaskItem({ id, task, isDone }: TaskItemProps) {
+import ModalTaskActionUi from "./modal-task-action";
+import { createClient } from "@/utils/supabase/client";
+export default function TaskItem(taskItemProps: TaskItemProps) {
+    const { taskId, taskName, taskStatus } = taskItemProps;
+    const isDone: boolean = taskStatus === "done";
     const [isTaskDone, setIsTaskDone] = useState(isDone);
+
+    const handleTaskChecked = useCallback(
+        debounce(async () => {
+            const supabase = createClient();
+
+            await supabase
+                .from("tasks")
+                .update({ status: isTaskDone ? "todo" : "done" })
+                .eq("id", taskId);
+
+            setIsTaskDone((prev) => !prev);
+        }, 1000), // delay in ms
+        [isTaskDone, taskId]
+    );
 
     return (
         <div className="bg-neutral-50 flex items-center px-5 py-5 rounded-sm">
@@ -39,17 +47,17 @@ export default function TaskItem({ id, task, isDone }: TaskItemProps) {
                     <Input
                         type="checkbox"
                         className="accent-secondary w-4 h-4"
-                        // checked={isTaskDone}
-                        // onChange={(e) => {
-                        //     if (e.target.checked) {
-                        //     }
-                        //     setIsTaskDone(e.target.checked);
-                        // }}
+                        checked={isTaskDone}
+                        onChange={handleTaskChecked}
                     />
                 </div>
 
                 {/* Task name */}
-                <div>{task}</div>
+                <div>
+                    <ModalTaskActionUi type="info" {...taskItemProps}>
+                        <div>{taskName}</div>
+                    </ModalTaskActionUi>
+                </div>
             </div>
 
             {/**
@@ -59,64 +67,21 @@ export default function TaskItem({ id, task, isDone }: TaskItemProps) {
                 {/**
                  * @TODO : handle edit by displaying popup form
                  */}
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <button>
-                            <EditIcon size={20} />
-                        </button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>Edit Tugas</DialogTitle>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid w-full gap-1.5">
-                                <Label htmlFor="title">Judul Tugas</Label>
-                                <Input
-                                    id="title"
-                                    name="title"
-                                    defaultValue={task}
-                                    className="col-span-3"
-                                />
-                            </div>
-                            <div className="grid w-full gap-1.5">
-                                <Label htmlFor="description">Deskripsi</Label>
-                                <Textarea
-                                    className="col-span-3 border-secondary rounded-none"
-                                    name="description"
-                                    placeholder="Type your message here."
-                                    id="description"
-                                />
-                            </div>
-                            <div className="grid w-full gap-1.5">
-                                <Input type="date" />
-                                <Input type="time" />
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button
-                                    variant="outline"
-                                    className="border-secondary hover:bg-primary/70 hover:text-primary-foreground"
-                                >
-                                    Batal
-                                </Button>
-                            </DialogClose>
-                            <Button type="submit">Simpan</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                <ModalTaskActionUi type="edit" {...taskItemProps}>
+                    <button>
+                        <EditIcon size={20} />
+                    </button>
+                </ModalTaskActionUi>
 
                 {/**
                  * @TODO : handle delete by displaying popup alert
                  */}
-                <button
-                    onClick={() => {
-                        alert(`Delete ${id}`);
-                    }}
-                >
-                    <DeleteIcon size={20} />
-                </button>
+
+                <ModalTaskActionUi type="delete" {...taskItemProps}>
+                    <button>
+                        <DeleteIcon size={20} />
+                    </button>
+                </ModalTaskActionUi>
             </div>
         </div>
     );

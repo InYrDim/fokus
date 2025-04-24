@@ -1,18 +1,22 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import ModalTaskActionUi from "./modal-task-action";
+import { TaskItemProps } from "./task-item";
 
 export default function AddingTask() {
+    const taskItemProps: TaskItemProps = {
+        taskId: "",
+        taskName: "",
+        taskDueDate: "",
+        taskStatus: "todo",
+        taskDescription: "",
+    };
     return (
-        <div className="flex-1 flex flex-col gap-6 px-4">
-            <Button
-                className="flex-1 p-4 text-lg"
-                onClick={() => {
-                    alert("tambah tugas");
-                }}
-            >
-                Tambah Tugas
-            </Button>
+        <div className="flex-1 flex flex-col">
+            <ModalTaskActionUi type="add" {...taskItemProps}>
+                <Button>Tambah Tugas</Button>
+            </ModalTaskActionUi>
         </div>
     );
 }
