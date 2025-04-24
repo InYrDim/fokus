@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/submit-button";
-import { signInAction } from "../actions";
+import { signInAction } from "@/app/actions";
 
 import { Inter } from "next/font/google";
 import { KeyIcon, MailIcon } from "@/components/icons";
@@ -12,7 +12,7 @@ const inter = Inter({
     weight: ["300", "400", "500", "600", "700"],
 });
 
-export default function Admin() {
+export default function Page() {
     return (
         <div className="flex flex-col sm:flex-row gap-2 [&>input]:mb-3">
             <div className="pr-10 sm:mt-auto mt-4 order-2 sm:order-1">

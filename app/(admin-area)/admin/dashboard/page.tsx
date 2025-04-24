@@ -43,9 +43,7 @@ function InformationCard({ children }: { children: React.ReactNode }) {
     return (
         <section>
             {titleComponent}
-            <div className="flex gap-2 flex-col min-w-64 max-w-screen-md">
-                {content}
-            </div>
+            <div className="">{content}</div>
         </section>
     );
 }
@@ -54,7 +52,7 @@ function InfoCardTitle({ children }: { children: React.ReactNode }) {
     return <h2 className="font-medium text-2xl mb-8">{children}</h2>;
 }
 
-export default async function AdminDashboard() {
+export default async function Page() {
     // Get Current User data
     const supabase = await createClient();
     const currentUser = await supabase.auth.getUser();
@@ -96,10 +94,12 @@ export default async function AdminDashboard() {
             </InformationCard>
             <InformationCard>
                 <InfoCardTitle>Statistik Tugas</InfoCardTitle>
-                <p className="text-sm text-neutral-600">
-                    Total tugas yang telah dibuat
-                </p>
-                <ChartComponent config={chartConfig} data={chartData} />
+                <div className="flex flex-col gap-8">
+                    <p className="text-sm text-neutral-600">
+                        Total tugas yang telah dibuat
+                    </p>
+                    <ChartComponent config={chartConfig} data={chartData} />
+                </div>
             </InformationCard>
         </div>
     );
