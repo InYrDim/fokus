@@ -14,11 +14,11 @@ const inter = Inter({
 
 export default function Admin() {
     return (
-        <div className="flex gap-2 [&>input]:mb-3">
-            <div className="pr-10">
+        <div className="flex flex-col sm:flex-row gap-2 [&>input]:mb-3">
+            <div className="pr-10 sm:mt-auto mt-4 order-2 sm:order-1">
                 <form className="flex flex-col gap-2">
                     <div className="flex gap-2 items-center">
-                        <MailIcon classname="fill-neutral-950" />
+                        <MailIcon classname="fill-neutral-950 dark:fill-neutral-50" />
                         <Label htmlFor="email">Email</Label>
                     </div>
                     <Input
@@ -27,7 +27,7 @@ export default function Admin() {
                         required
                     />
                     <div className="flex gap-2 items-center">
-                        <KeyIcon classname="fill-neutral-950" />
+                        <KeyIcon classname="fill-neutral-950 dark:fill-neutral-50" />
                         <Label htmlFor="password">Password</Label>
                     </div>
                     <Input
@@ -37,6 +37,7 @@ export default function Admin() {
                         required
                     />
                     <SubmitButton
+                        className="mt-4"
                         pendingText="Signing In..."
                         formAction={signInAction}
                     >
@@ -44,7 +45,7 @@ export default function Admin() {
                     </SubmitButton>
                 </form>
             </div>
-            <div className={` ${inter.className}`}>
+            <div className={`order-1 sm:order-2 ${inter.className}`}>
                 <h1 className={`text-4xl font-medium ${inter.className}`}>
                     Halo Admin!
                 </h1>

@@ -2,6 +2,7 @@ interface icon {
     size?: number;
     classname?: string;
 }
+
 export function MailIcon({ size = 24, classname = "fill-neutral-50" }: icon) {
     return (
         <svg

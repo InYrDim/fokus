@@ -10,7 +10,7 @@ import { inter } from "@/app/fonts";
 export default async function Login(props: { searchParams: Promise<Message> }) {
     const searchParams = await props.searchParams;
     return (
-        <div className="flex border shadow-xl ">
+        <div className="flex flex-col sm:flex-row border shadow-xl ">
             <div className="text-neutral-50 flex-1 flex flex-col gap-2 items-start justify-between bg-secondary p-8">
                 <h1 className="text-4xl font-medium">Login</h1>
                 <p
