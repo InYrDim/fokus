@@ -14,7 +14,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/submit-button";
-import { EditIcon } from "@/components/icons";
+import { CalendarIcon, EditIcon, TimeIcon } from "@/components/icons";
 import { TaskItemProps } from "./task-item";
 
 import {
@@ -23,7 +23,9 @@ import {
     updateTaskAction,
 } from "@/app/task-actions";
 import { useEffect, useState } from "react";
-import { useFormState } from "react-dom";
+import { DayPicker } from "./date-picker";
+import { TimePicker } from "./time-picker";
+import { splitDateAndTime } from "@/utils/utils";
 
 interface ModalTaskActionProps extends TaskItemProps {
     type: "add" | "edit" | "delete" | "info";
@@ -86,18 +88,88 @@ function TaskDescription({
     );
 }
 
-function TaskTime() {
+function TaskTime({
+    type = "form",
+    timestampz,
+}: {
+    type?: "form" | "dialog";
+    timestampz: string;
+}) {
+    const [time, setTime] = useState<string | undefined>(undefined);
+
+    const timeString = splitDateAndTime(timestampz).time;
+    useEffect(() => {
+        setTime(timeString);
+    }, [timeString]);
+
+    const handleCancel = () => {
+        setTime(undefined);
+    };
+
+    if (type === "dialog") {
+        return (
+            <>
+                <div className="bg-secondary w-fit  py-2 px-5 text-white rounded-full flex gap-2">
+                    <TimeIcon />
+                    {time ? time : "Waktu Tidak Diatur"}
+                </div>
+            </>
+        );
+    }
+
     return (
         <>
-            <Input type="time" />
+            <TimePicker
+                value={timestampz}
+                onChange={(t) => setTime(t)}
+                onCancel={handleCancel}
+            />
+            {time && <input type="hidden" name="time" value={time} />}
         </>
     );
 }
 
-function TaskDate() {
+function TaskDate({
+    type = "form",
+    timestampz,
+}: {
+    type?: "form" | "dialog";
+    timestampz: string;
+}) {
+    const [date, setDate] = useState<string | null>(null); // Inisialisasi dengan string kosong
+
+    const handleCancel = () => {
+        setDate(null);
+    };
+
+    if (type === "dialog") {
+        const date = splitDateAndTime(timestampz).date;
+        return (
+            <>
+                <div className="bg-secondary w-fit  py-2 px-5 text-white rounded-full flex gap-2">
+                    <CalendarIcon />
+                    {date ? date : "Waktu Tidak Diatur"}
+                </div>
+            </>
+        );
+    }
     return (
         <>
-            <Input type="date" />
+            <DayPicker
+                value={timestampz ? new Date(timestampz) : undefined}
+                onChange={(selectedDate) => {
+                    if (selectedDate) {
+                        const formattedDate = selectedDate
+                            .toISOString()
+                            .slice(0, 10);
+                        setDate(formattedDate); // Set ke string format YYYY-MM-DD
+                    } else {
+                        setDate(null);
+                    }
+                }}
+                onCancel={handleCancel}
+            />
+            {date && <input type="hidden" name="date" value={date} />}
         </>
     );
 }
@@ -105,7 +177,7 @@ function TaskDate() {
 function TaskStatus({ text }: { text: string }) {
     return (
         <>
-            <div className="rounded-full py-2 px-8 bg-primary text-neutral-50 w-fit">
+            <div className="rounded-full border-primary border-2 py-2 px-8 text-primary font-semibold w-fit">
                 {text}
             </div>
         </>
@@ -122,7 +194,7 @@ function DialogAction({
     pendingText?: string;
 }) {
     return (
-        <>
+        <div className="flex gap-2 mt-4">
             <DialogClose asChild>
                 <Button
                     variant="outline"
@@ -134,7 +206,7 @@ function DialogAction({
             <SubmitButton formAction={action} pendingText={pendingText}>
                 {text}
             </SubmitButton>
-        </>
+        </div>
     );
 }
 
@@ -189,11 +261,21 @@ function TaskDialogLayout({
                                         }
                                     />
                                 </div>
-                                <div className="">
-                                    <TaskTime />
-                                </div>
-                                <div className="">
-                                    <TaskDate />
+                                <div className="flex flex-col gap-2">
+                                    <div className="w-fit">
+                                        <TaskTime
+                                            timestampz={
+                                                taskItemProps.taskDueDate
+                                            }
+                                        />
+                                    </div>
+                                    <div className="w-fit">
+                                        <TaskDate
+                                            timestampz={
+                                                taskItemProps.taskDueDate
+                                            }
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="">
@@ -219,11 +301,21 @@ function TaskDialogLayout({
                                         }
                                     />
                                 </div>
-                                <div className="">
-                                    <TaskTime />
-                                </div>
-                                <div className="">
-                                    <TaskDate />
+                                <div className="flex flex-col gap-2">
+                                    <div className="w-fit">
+                                        <TaskTime
+                                            timestampz={
+                                                taskItemProps.taskDueDate
+                                            }
+                                        />
+                                    </div>
+                                    <div className="w-fit">
+                                        <TaskDate
+                                            timestampz={
+                                                taskItemProps.taskDueDate
+                                            }
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="">
@@ -236,11 +328,23 @@ function TaskDialogLayout({
 
                         {type === "info" && (
                             <div className="flex flex-col gap-4">
-                                <div className="">
-                                    <TaskTime />
-                                </div>
-                                <div className="">
-                                    <TaskDate />
+                                <div className="flex flex-col gap-2">
+                                    <div className="w-fit">
+                                        <TaskTime
+                                            type="dialog"
+                                            timestampz={
+                                                taskItemProps.taskDueDate
+                                            }
+                                        />
+                                    </div>
+                                    <div className="w-fit">
+                                        <TaskDate
+                                            type="dialog"
+                                            timestampz={
+                                                taskItemProps.taskDueDate
+                                            }
+                                        />
+                                    </div>
                                 </div>
                                 <div className="">
                                     <TaskTitle

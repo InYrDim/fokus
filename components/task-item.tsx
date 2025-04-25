@@ -22,6 +22,11 @@ export default function TaskItem(taskItemProps: TaskItemProps) {
     const isDone: boolean = taskStatus === "done";
     const [isTaskDone, setIsTaskDone] = useState(isDone);
 
+    const currentTaskItemProps: TaskItemProps = {
+        ...taskItemProps,
+        taskStatus: isTaskDone ? "done" : "todo",
+    };
+
     const handleTaskChecked = useCallback(
         debounce(async () => {
             const supabase = createClient();
@@ -54,7 +59,7 @@ export default function TaskItem(taskItemProps: TaskItemProps) {
 
                 {/* Task name */}
                 <div>
-                    <ModalTaskActionUi type="info" {...taskItemProps}>
+                    <ModalTaskActionUi type="info" {...currentTaskItemProps}>
                         <div>{taskName}</div>
                     </ModalTaskActionUi>
                 </div>
@@ -67,7 +72,7 @@ export default function TaskItem(taskItemProps: TaskItemProps) {
                 {/**
                  * @TODO : handle edit by displaying popup form
                  */}
-                <ModalTaskActionUi type="edit" {...taskItemProps}>
+                <ModalTaskActionUi type="edit" {...currentTaskItemProps}>
                     <button>
                         <EditIcon size={20} />
                     </button>
@@ -77,7 +82,7 @@ export default function TaskItem(taskItemProps: TaskItemProps) {
                  * @TODO : handle delete by displaying popup alert
                  */}
 
-                <ModalTaskActionUi type="delete" {...taskItemProps}>
+                <ModalTaskActionUi type="delete" {...currentTaskItemProps}>
                     <button>
                         <DeleteIcon size={20} />
                     </button>

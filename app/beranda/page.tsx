@@ -27,7 +27,10 @@ export default async function Beranda() {
 
     const tasks = await supabase.from("tasks").select().eq("user_id", userId);
 
-    console.log(tasks);
+    if (tasks.error) {
+        console.log("error");
+        return redirect("/sign-in");
+    }
 
     return (
         <>

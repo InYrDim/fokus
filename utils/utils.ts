@@ -14,3 +14,49 @@ export function encodedRedirect(
 ) {
     return redirect(`${path}?${type}=${encodeURIComponent(message)}`);
 }
+
+export function combineDateAndTime(date?: string, time?: string): string {
+    if (!date && !time) {
+        return "";
+    }
+
+    let newDate = new Date();
+
+    // If date is provided, parse it
+    if (date) {
+        newDate = new Date(date);
+    }
+
+    // If time is provided, update the hours and minutes
+    if (time) {
+        const [hour, minute] = time.split(":").map(Number);
+        newDate.setHours(hour);
+        newDate.setMinutes(minute);
+    }
+
+    // Set seconds and milliseconds to zero to match the format
+    newDate.setSeconds(0);
+    newDate.setMilliseconds(0);
+
+    // Return the date and time as an ISO string
+    return newDate.toISOString();
+}
+
+export function splitDateAndTime(isoString?: string): {
+    date: string;
+    time: string;
+} {
+    if (!isoString) {
+        return { date: "", time: "" };
+    }
+
+    const dateObj = new Date(isoString);
+
+    // Format date as YYYY-MM-DD
+    const date = dateObj.toISOString().slice(0, 10);
+
+    // Format time as HH:MM
+    const time = dateObj.toISOString().slice(11, 16);
+
+    return { date, time };
+}
