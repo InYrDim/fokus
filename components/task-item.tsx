@@ -8,11 +8,6 @@ export interface TaskItemProps {
     taskDescription: string;
     taskDueDate: string;
     taskStatus: "done" | "todo";
-
-    // onToggle: (id: number) => void;
-    // onEdit: (id: number) => void;
-    // onDelete: (id: number) => void;
-    // onDone: (id: number) => void;
 }
 import { EditIcon, DeleteIcon } from "@/components/icons";
 import ModalTaskActionUi from "./modal-task-action";

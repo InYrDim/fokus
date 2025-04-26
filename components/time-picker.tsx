@@ -78,7 +78,6 @@ export function TimePicker({ value, onChange, onCancel }: TimePickerProps) {
                 <Button className="bg-secondary rounded-full font-normal flex gap-2">
                     <TimeIcon />
                     {time ? time : <span>Pilih waktu</span>}{" "}
-                    {/* Show "Pilih waktu" if no time selected */}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">

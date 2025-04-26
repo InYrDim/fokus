@@ -3,7 +3,7 @@ interface icon {
     classname?: string;
 }
 
-export function ChekcIcon({ size = 24, classname = "fill-neutral-50" }: icon) {
+export function CheckIcon({ size = 24, classname = "fill-neutral-50" }: icon) {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -46,7 +46,7 @@ export default function DashboardAction({
                         )}
                     </div>
                 </PopoverTrigger>
-                <PopoverContent className="w-full max-w-sm">
+                <PopoverContent className="w-full max-w-sm p-0">
                     {notifications.elm}
                 </PopoverContent>
             </Popover>
