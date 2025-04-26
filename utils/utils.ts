@@ -15,6 +15,17 @@ export function encodedRedirect(
     return redirect(`${path}?${type}=${encodeURIComponent(message)}`);
 }
 
+export interface MessageHandlerProps {
+    status: "error" | "success";
+    text: string;
+}
+export function messageHandler({ status, text }: MessageHandlerProps) {
+    return {
+        status,
+        text,
+    };
+}
+
 export function combineDateAndTime(date?: string, time?: string): string {
     if (!date && !time) {
         return "";

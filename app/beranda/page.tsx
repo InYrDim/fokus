@@ -1,13 +1,50 @@
 import AddingTask from "@/components/adding-task";
 import DashboardAction from "@/components/dashboard-action";
-import TaskItem from "@/components/task-item";
-import FetchDataSteps from "@/components/tutorial/fetch-data-steps";
-import { Button } from "@/components/ui/button";
+import { FormMessage, Message } from "@/components/form-message";
+import NotificationsContainer from "@/components/notification-container";
+import TaskItem, { TaskItemProps } from "@/components/task-item";
 import { createClient } from "@/utils/supabase/server";
-import { InfoIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 
-export default async function Beranda() {
+async function getUpcomingTask(supabase: any, userId: string) {
+    const today = new Date();
+    const utcYear = today.getUTCFullYear();
+    const utcMonth = today.getUTCMonth();
+    const utcDate = today.getUTCDate();
+
+    const startOfDay = new Date(Date.UTC(utcYear, utcMonth, utcDate, 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(utcYear, utcMonth, utcDate, 23, 59, 59));
+
+    const { data: notifications, error } = await supabase
+        .from("notifications")
+        .select(
+            `
+    id,
+    notify_at,
+    is_sent,
+    task:tasks (
+      id,
+      title,
+      description,
+      due_date,
+      status
+    )
+  `
+        )
+        .eq("user_id", userId)
+        .eq("is_sent", false)
+        // .gte("notify_at", startOfDay.toISOString())
+        // .lte("notify_at", endOfDay.toISOString())
+        .order("notify_at", { ascending: true });
+
+    return notifications;
+}
+
+export default async function Beranda(props: {
+    searchParams: Promise<Message>;
+}) {
+    const searchParams = await props.searchParams;
+
     const supabase = await createClient();
 
     const {
@@ -32,8 +69,11 @@ export default async function Beranda() {
         return redirect("/sign-in");
     }
 
+    const notifications = await getUpcomingTask(supabase, userId);
+
     return (
         <>
+            <FormMessage message={searchParams} />
             <div className="bg-secondary p-5 w-full">
                 {/* metadata */}
                 <header className="text-neutral-50 mt-3 pb-7 flex justify-between">
@@ -42,7 +82,17 @@ export default async function Beranda() {
                     </h2>
 
                     {/* actions: notification & detail */}
-                    <DashboardAction />
+                    <DashboardAction
+                        user={user}
+                        notifications={{
+                            count: notifications.length,
+                            elm: (
+                                <NotificationsContainer
+                                    notifications={notifications}
+                                />
+                            ),
+                        }}
+                    />
                 </header>
 
                 {/* tasks */}
@@ -61,17 +111,6 @@ export default async function Beranda() {
             </div>
 
             <AddingTask />
-
-            {/* <div className="flex-1 w-full flex flex-col gap-12">
-                <div className="flex flex-col gap-2 items-start">
-                    <h2 className="font-bold text-2xl mb-4">
-                        Your user details
-                    </h2>
-                    <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto w-full">
-                        {JSON.stringify(user, null, 2)}
-                    </pre>
-                </div>
-            </div> */}
         </>
     );
 }

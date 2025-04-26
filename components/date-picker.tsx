@@ -51,7 +51,7 @@ export function DayPicker({ value, onChange, onCancel }: DayPickerProps) {
                     {date ? (
                         format(date, "MM/dd/yyyy")
                     ) : (
-                        <span>Pick a date</span>
+                        <span>Pilih tanggal</span>
                     )}
                 </Button>
             </PopoverTrigger>

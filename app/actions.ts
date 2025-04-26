@@ -4,6 +4,7 @@ import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { error } from "console";
 
 export const signUpAction = async (formData: FormData) => {
     const password = formData.get("password")?.toString();
@@ -136,6 +137,79 @@ export const forgotPasswordAction = async (formData: FormData) => {
     );
 };
 
+export const changePasswordAction = async (formData: FormData) => {
+    const supabase = await createClient();
+
+    const current_password = formData.get("current_password") as string;
+    const confirm_password = formData.get("confirm_password") as string;
+    const new_password = formData.get("new_password") as string;
+
+    if (!current_password || !confirm_password || !new_password) {
+        return encodedRedirect(
+            "error",
+            "/beranda",
+            "Semua input tidak boleh kosong"
+        );
+    }
+
+    if (new_password !== confirm_password) {
+        return encodedRedirect(
+            "error",
+            "/beranda",
+            "Password dan Konfirmasi Password tidak sama"
+        );
+    }
+
+    // Retrieve the authenticated user
+    const {
+        data: { user },
+        error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+        return encodedRedirect(
+            "error",
+            "/beranda",
+            "Gagal mendapatkan data pengguna yang terautentikasi"
+        );
+    }
+
+    // Call the custom RPC function to verify the current password
+    const { data: isPasswordValid, error: rpcError } = await supabase.rpc(
+        "verify_user_password",
+        {
+            password: current_password,
+        }
+    );
+
+    if (rpcError || !isPasswordValid) {
+        return encodedRedirect(
+            "error",
+            "/beranda",
+            "Password saat ini tidak valid"
+        );
+    }
+
+    // Update the user's password
+    const { error: updateError } = await supabase.auth.updateUser({
+        password: new_password,
+    });
+
+    if (updateError) {
+        return encodedRedirect(
+            "error",
+            "/beranda",
+            "Gagal memperbarui password"
+        );
+    }
+
+    return encodedRedirect(
+        "success",
+        "/beranda",
+        "Password berhasil diperbarui"
+    );
+};
+
 export const resetPasswordAction = async (formData: FormData) => {
     const supabase = await createClient();
 
@@ -146,7 +220,7 @@ export const resetPasswordAction = async (formData: FormData) => {
         encodedRedirect(
             "error",
             "/beranda/reset-password",
-            "Password and confirm password are required"
+            "Password dan Konfir password diperlukan"
         );
     }
 
@@ -188,3 +262,14 @@ export const signOutAction = async () => {
 
     return redirect("/sign-in");
 };
+
+export async function updateNotification({ taskId }: { taskId: string }) {
+    const supabase = await createClient();
+
+    const { error } = await supabase
+        .from("notifications")
+        .update({ is_sent: true })
+        .eq("task_id", taskId);
+
+    return redirect("/beranda");
+}

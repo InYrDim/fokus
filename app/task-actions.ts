@@ -60,10 +60,6 @@ export const updateTaskAction = async (formData: FormData) => {
 
     const datetime = combineDateAndTime(date, time);
 
-    console.log(formData);
-
-    console.log(datetime);
-
     const body: Body = {
         title,
         description,
