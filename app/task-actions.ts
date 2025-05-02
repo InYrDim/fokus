@@ -1,6 +1,10 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
-import { combineDateAndTime } from "@/utils/utils";
+import {
+    combineDateAndTime,
+    isEmptyString,
+    messageHandler,
+} from "@/utils/utils";
 import { redirect } from "next/navigation";
 export const deleteTaskAction = async (formData: FormData) => {
     console.log("deleteTaskAction");
@@ -29,6 +33,14 @@ export const addTaskAction = async (formData: FormData) => {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
 
+    // check if empty:
+    if (isEmptyString({ val: title })) {
+        return messageHandler({
+            status: "error",
+            text: "Judul Tidak Boleh Kosong",
+        });
+    }
+
     const { error, data } = await supabase.from("tasks").insert({
         user_id: id,
         title,
@@ -53,6 +65,15 @@ export const updateTaskAction = async (formData: FormData) => {
 
     const task_id = formData.get("task_id") as string;
     const title = formData.get("title") as string;
+
+    // check if empty:
+    if (isEmptyString({ val: title })) {
+        return messageHandler({
+            status: "error",
+            text: "Judul Tidak Boleh Kosong",
+        });
+    }
+
     const description = formData.get("description") as string;
 
     const date = formData.get("date") as string;

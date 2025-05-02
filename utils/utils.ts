@@ -71,3 +71,10 @@ export function splitDateAndTime(isoString?: string): {
 
     return { date, time };
 }
+
+export function isEmptyString({ val }: { val: string }): Boolean {
+    if (!val) {
+        return true;
+    }
+    return false;
+}

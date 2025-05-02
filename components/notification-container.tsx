@@ -25,10 +25,8 @@ export default function NotificationsContainer({
 }) {
     if (notifications.length === 0) {
         return (
-            <div className="py-8 px-4">
-                <p className="text-neutral-600">
-                    Tidak ada tugas dalam waktu dekat.
-                </p>
+            <div className="py-4 px-4">
+                <p className="text-neutral-600">Pengingat tugas kosong....</p>
             </div>
         );
     }

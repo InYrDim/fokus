@@ -18,6 +18,18 @@ import { CalendarIcon, EditIcon, TimeIcon } from "@/components/icons";
 import { TaskItemProps } from "./task-item";
 
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+import {
     addTaskAction,
     deleteTaskAction,
     updateTaskAction,
@@ -124,6 +136,7 @@ function TaskTime({
                 onChange={(t) => setTime(t)}
                 onCancel={handleCancel}
             />
+            <Input type="hidden" name="time" />
             {time && <input type="hidden" name="time" value={time} />}
         </>
     );
@@ -184,29 +197,69 @@ function TaskStatus({ text }: { text: string }) {
     );
 }
 
-function DialogAction({
-    action,
-    text = "simpan",
-    pendingText = "Loading...",
-}: {
-    action: string | ((formData: FormData) => void | Promise<void>) | undefined;
+type DialogActionProps = {
+    action?: (formData: FormData) => void | Promise<any>;
     text?: string;
     pendingText?: string;
-}) {
+};
+function DialogAction({
+    action,
+    text = "Simpan",
+    pendingText = "Loading...",
+}: DialogActionProps) {
+    const [error, setError] = useState<string | null>(null);
+    // handle loading
+    const [loading, setLoading] = useState(false);
+
+    const handleFormAction = async (formData: FormData) => {
+        setLoading(true);
+        setError(null); // Reset error dulu
+        if (typeof action === "function") {
+            const result = await action(formData);
+            if (result?.status === "error") {
+                setError(result.text);
+            }
+        }
+    };
     return (
-        <div className="flex gap-2 mt-4">
-            <DialogClose asChild>
-                <Button
-                    variant="outline"
-                    className="border-secondary hover:bg-primary/70 hover:text-primary-foreground"
+        <>
+            {loading && (
+                <AlertDialog open={loading}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Error!</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                {error}
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel
+                                onClick={() => setLoading(false)}
+                            >
+                                Ok
+                            </AlertDialogCancel>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
+
+            <div className="flex gap-2 mt-4">
+                <DialogClose asChild>
+                    <Button
+                        variant="outline"
+                        className="border-secondary hover:bg-primary/70 hover:text-primary-foreground"
+                    >
+                        Batal
+                    </Button>
+                </DialogClose>
+                <SubmitButton
+                    formAction={handleFormAction}
+                    pendingText={pendingText}
                 >
-                    Batal
-                </Button>
-            </DialogClose>
-            <SubmitButton formAction={action} pendingText={pendingText}>
-                {text}
-            </SubmitButton>
-        </div>
+                    {text}
+                </SubmitButton>
+            </div>
+        </>
     );
 }
 

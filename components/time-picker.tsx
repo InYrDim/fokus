@@ -68,9 +68,9 @@ export function TimePicker({ value, onChange, onCancel }: TimePickerProps) {
     };
 
     // Hours from 1-12
-    const hours = Array.from({ length: 12 }, (_, i) => i + 1);
+    const hours = Array.from({ length: 24 }, (_, i) => i * 1);
     // Minutes from 00-55 in increments of 5
-    const minutes = Array.from({ length: 12 }, (_, i) => i * 5);
+    const minutes = Array.from({ length: 60 }, (_, i) => i * 1);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -85,7 +85,7 @@ export function TimePicker({ value, onChange, onCancel }: TimePickerProps) {
                     {/* Hours */}
                     <ScrollArea className="w-auto">
                         <div className="flex flex-col p-2">
-                            {hours.reverse().map((hour) => (
+                            {hours.map((hour) => (
                                 <Button
                                     key={hour}
                                     size="icon"
