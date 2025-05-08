@@ -79,15 +79,19 @@ export const updateTaskAction = async (formData: FormData) => {
     const date = formData.get("date") as string;
     const time = formData.get("time") as string;
 
-    const datetime = combineDateAndTime(date, time);
+    console.log(date);
+    console.log(time);
+
+    const isoDatetime = combineDateAndTime(date, time);
+    console.log("iso time: ", isoDatetime);
 
     const body: Body = {
         title,
         description,
         due_date: null,
     };
-    if (datetime) {
-        body.due_date = datetime;
+    if (isoDatetime) {
+        body.due_date = isoDatetime;
     }
     const { error } = await supabase
         .from("tasks")
@@ -95,6 +99,7 @@ export const updateTaskAction = async (formData: FormData) => {
         .eq("id", task_id);
 
     console.log(error);
+
     if (!error) {
         return redirect("/beranda");
     }

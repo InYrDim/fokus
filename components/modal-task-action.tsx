@@ -37,7 +37,7 @@ import {
 import { useEffect, useState } from "react";
 import { DayPicker } from "./date-picker";
 import { TimePicker } from "./time-picker";
-import { splitDateAndTime } from "@/utils/utils";
+import { combineDateAndTime, splitDateAndTime } from "@/utils/utils";
 
 interface ModalTaskActionProps extends TaskItemProps {
     type: "add" | "edit" | "delete" | "info";
@@ -109,10 +109,15 @@ function TaskTime({
 }) {
     const [time, setTime] = useState<string | undefined>(undefined);
 
-    const timeString = splitDateAndTime(timestampz).time;
     useEffect(() => {
-        setTime(timeString);
-    }, [timeString]);
+        if (timestampz) {
+            const timeString = splitDateAndTime(timestampz).time;
+            const [hours, minutes] = timeString.split(":").map(Number);
+            const newTime = new Date();
+            newTime.setHours(hours, minutes, 0, 0);
+            setTime(newTime.toISOString());
+        }
+    }, [timestampz]);
 
     const handleCancel = () => {
         setTime(undefined);
@@ -128,15 +133,33 @@ function TaskTime({
             </>
         );
     }
+    console.log("time: ", timestampz);
 
     return (
         <>
             <TimePicker
                 value={timestampz}
-                onChange={(t) => setTime(t)}
+                onChange={(t) => {
+                    const [hours, minutes] = t.split(":").map(Number);
+
+                    // Keep the original date, parse it in UTC
+                    const baseDate = new Date(timestampz); // This must be a UTC string like "2025-05-01T00:00:00Z"
+
+                    // Update only time in UTC, keep date
+                    baseDate.setHours(hours);
+                    baseDate.setMinutes(minutes);
+                    baseDate.setMilliseconds(0);
+                    baseDate.setSeconds(0);
+
+                    // Output as UTC
+                    const updated = baseDate.toISOString();
+
+                    console.log(updated); // ✅ "2025-05-01T19:04:00.000Z"
+                    setTime(updated);
+                }}
                 onCancel={handleCancel}
             />
-            <Input type="hidden" name="time" />
+
             {time && <input type="hidden" name="time" value={time} />}
         </>
     );
@@ -155,6 +178,14 @@ function TaskDate({
         setDate(null);
     };
 
+    console.log("date: ", timestampz);
+    useEffect(() => {
+        if (timestampz) {
+            const date = splitDateAndTime(timestampz).date;
+            setDate(new Date(date).toISOString());
+        }
+    }, [timestampz]);
+
     if (type === "dialog") {
         const date = splitDateAndTime(timestampz).date;
         return (
@@ -172,10 +203,9 @@ function TaskDate({
                 value={timestampz ? new Date(timestampz) : undefined}
                 onChange={(selectedDate) => {
                     if (selectedDate) {
-                        const formattedDate = selectedDate
-                            .toISOString()
-                            .slice(0, 10);
-                        setDate(formattedDate); // Set ke string format YYYY-MM-DD
+                        setDate(selectedDate.toISOString()); // Set ke string format YYYY-MM-DD
+
+                        console.log(selectedDate);
                     } else {
                         setDate(null);
                     }

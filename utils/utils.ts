@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { parse } from "path";
 
 /**
  * Redirects to a specified path with an encoded message as a query parameter.
@@ -26,48 +27,45 @@ export function messageHandler({ status, text }: MessageHandlerProps) {
     };
 }
 
-export function combineDateAndTime(date?: string, time?: string): string {
-    if (!date && !time) {
+export function combineDateAndTime(dateStr?: string, timeStr?: string): string {
+    if (!dateStr && !timeStr) {
         return "";
     }
 
-    let newDate = new Date();
+    let date = new Date();
 
-    // If date is provided, parse it
-    if (date) {
-        newDate = new Date(date);
+    if (dateStr) {
+        date = new Date(dateStr);
     }
 
-    // If time is provided, update the hours and minutes
-    if (time) {
-        const [hour, minute] = time.split(":").map(Number);
-        newDate.setHours(hour);
-        newDate.setMinutes(minute);
+    if (!timeStr) {
+        return date.toISOString();
     }
 
-    // Set seconds and milliseconds to zero to match the format
-    newDate.setSeconds(0);
-    newDate.setMilliseconds(0);
+    const time = new Date(timeStr);
 
-    // Return the date and time as an ISO string
-    return newDate.toISOString();
+    date.setUTCHours(time.getUTCHours());
+    date.setUTCMinutes(time.getUTCMinutes());
+    date.setUTCSeconds(time.getUTCSeconds());
+    date.setUTCMilliseconds(time.getUTCMilliseconds());
+
+    return date.toISOString();
 }
 
-export function splitDateAndTime(isoString?: string): {
+export function splitDateAndTime(isoString: string): {
     date: string;
     time: string;
 } {
-    if (!isoString) {
-        return { date: "", time: "" };
-    }
-
     const dateObj = new Date(isoString);
 
-    // Format date as YYYY-MM-DD
-    const date = dateObj.toISOString().slice(0, 10);
+    if (isNaN(dateObj.getTime())) {
+        throw new Error("Invalid ISO date string");
+    }
 
-    // Format time as HH:MM
-    const time = dateObj.toISOString().slice(11, 16);
+    const pad = (n: number) => n.toString().padStart(2, "0");
+
+    const date = `${dateObj.getUTCFullYear()}-${pad(dateObj.getUTCMonth() + 1)}-${pad(dateObj.getUTCDate())}`;
+    const time = `${pad(dateObj.getUTCHours())}:${pad(dateObj.getUTCMinutes())}:${pad(dateObj.getUTCSeconds())}`;
 
     return { date, time };
 }

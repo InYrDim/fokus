@@ -59,14 +59,32 @@ export default async function Page() {
 
     const fullname = currentUser.data.user?.user_metadata.fullname;
 
-    const chartData = [
-        { month: "January", tugas: 1 },
-        { month: "February", tugas: 1 },
-        { month: "March", tugas: 1 },
-        { month: "April", tugas: 1 },
-        { month: "May", tugas: 4 },
-        { month: "June", tugas: 1 },
-    ];
+    const { data: tasksData, error: tasksError } = await supabase.rpc(
+        "get_tasks_count_by_month"
+    );
+
+    let chartData = [];
+
+    chartData = tasksData.map((item: { month: string; task_count: number }) => {
+        return {
+            month: item.month.trim(),
+            tugas: item.task_count,
+        };
+    });
+
+    if (tasksError) {
+        chartData = [{ month: "Bulan", tugas: 1 }];
+    }
+
+    const totalTugas = chartData.length;
+
+    const { data: usersData, error: usersError } = await supabase
+        .from("profiles")
+        .select("id", {
+            count: "exact",
+        });
+
+    const totalUsers = usersData?.length || 0;
 
     const chartConfig = {
         tugas: {
@@ -88,8 +106,8 @@ export default async function Page() {
             <InformationCard>
                 <InfoCardTitle>Halo! {fullname}</InfoCardTitle>
                 <ChardCardContainer>
-                    <ChartCard count={10} name="Total Pengguna" />
-                    <ChartCard count={35} name="Total Tugas" />
+                    <ChartCard count={totalUsers} name="Total Pengguna" />
+                    <ChartCard count={totalTugas} name="Total Tugas" />
                 </ChardCardContainer>
             </InformationCard>
             <InformationCard>
