@@ -55,7 +55,9 @@ export default function TaskItem(taskItemProps: TaskItemProps) {
                 {/* Task name */}
                 <div>
                     <ModalTaskActionUi type="info" {...currentTaskItemProps}>
-                        <div>{taskName}</div>
+                        <div className="dark:text-neutral-950 first-letter:capitalize">
+                            {taskName}
+                        </div>
                     </ModalTaskActionUi>
                 </div>
             </div>
