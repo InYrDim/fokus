@@ -4,6 +4,14 @@ Fokuse merupakan platform berbasis web yang dikembangkan dengan menggunakan fram
 
 ---
 
+untuk menjalankan sistem gunakan perintah berikut, pastikan node js terinstal terlebih dahulu.
+
+```bash
+npm i
+```
+
+install node js disini https://nodejs.org/en/download/
+
 #### Fokus?
 
 Platform ini dirancang untuk membantu pengelolaan waktu dengan fitur CRUD dan notifikasi, serta mempermudah pengelolaan tugas dan pengingat otomatis. Sistem ini terbit dengan judul _**"Pengembangan Sistem Informasi Penjadwalan FOKUS! Berbasis Web Menggunakan Next.js dan Supabase"**_.
